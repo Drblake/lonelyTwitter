@@ -5,24 +5,26 @@ import java.util.ArrayList;
 /**
  * Created by drblake on 9/29/15.
  */
-public class TweetList {
+//want to make observable
+public class TweetList implements MyObservable, MyObserver{
     public ArrayList<Tweet> tweets = new ArrayList<Tweet>();
     public Tweet mostRecentTweet;
 
+
     public void add(Tweet tweet) {
-        if (tweets.contains(tweet)){
+        if (tweets.contains(tweet)) {
             throw new IllegalArgumentException("Duplicate tweet found");
-        }
-        else{
+        } else {
             mostRecentTweet = tweet;
             tweets.add(mostRecentTweet);
+            tweet.addObserver(this);
+            notifyAllObservers();
         }
-
     }
     public Tweet getMostRecentTweet() {
         return mostRecentTweet;
     }
-    public int getCount(){
+    public int count(){
         return tweets.size();
     }
     public ArrayList<Tweet> getTweets(){
@@ -40,4 +42,17 @@ public class TweetList {
         tweets.remove(tweet);
     }
 
+    private volatile ArrayList<MyObserver> observers = new ArrayList<MyObserver>();
+
+    public void addObserver(MyObserver observer){
+        observers.add(observer);
+    }
+    private void notifyAllObservers(){
+        for (MyObserver observer : observers) {
+            observer.myNotify(this);
+        }
+    }
+    public void myNotify(MyObservable observable){
+        notifyAllObservers();
+    }
 }

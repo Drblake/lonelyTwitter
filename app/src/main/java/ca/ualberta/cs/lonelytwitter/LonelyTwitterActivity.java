@@ -11,8 +11,10 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,10 +26,27 @@ import com.google.gson.reflect.TypeToken;
 public class LonelyTwitterActivity extends Activity {
 
 	private ArrayList<Tweet> tweets = new ArrayList<Tweet>();
+
+	public ArrayList<Tweet> getTweets() {
+		return tweets;
+	}
+
 	private ArrayAdapter<Tweet> adapter;
 	private static final String FILENAME = "file.sav";
 	private EditText bodyText;
 	private ListView oldTweetsList;
+	private Button saveButton;
+	private Button clearButton;
+	private LonelyTwitterActivity activity = this;
+
+	public ListView getOldTweetsList() {
+		return oldTweetsList;
+	}
+
+	public Button getSaveButton() {
+		return saveButton;
+	}
+
 	/** Called when the activity is first created. */
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -36,8 +55,8 @@ public class LonelyTwitterActivity extends Activity {
 		setContentView(R.layout.main); // view
 
 		bodyText = (EditText) findViewById(R.id.body); //view
-		Button saveButton = (Button) findViewById(R.id.save); //view
-		Button clearButton = (Button) findViewById(R.id.clear); //view
+		saveButton = (Button) findViewById(R.id.save); //view
+		clearButton = (Button) findViewById(R.id.clear); //view
 		oldTweetsList = (ListView) findViewById(R.id.oldTweetsList); //view
 
 		clearButton.setOnClickListener(new View.OnClickListener() {
@@ -57,6 +76,12 @@ public class LonelyTwitterActivity extends Activity {
 				adapter.notifyDataSetChanged(); //view
 				saveInFile(); //model
 
+			}
+		});
+		oldTweetsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				Intent intent = new Intent(activity, EditTweetActivity.class);
+				startActivity(intent);
 			}
 		});
 	}
@@ -84,7 +109,11 @@ public class LonelyTwitterActivity extends Activity {
 			throw new RuntimeException(e); //view
 		}
 	}
-	
+
+	public EditText getBodyText() {
+		return bodyText;
+	}
+
 	private void saveInFile() {
 		try {
 			FileOutputStream fos = openFileOutput(FILENAME,0); //Model
@@ -93,6 +122,7 @@ public class LonelyTwitterActivity extends Activity {
 			gson.toJson(tweets, writer); //model
 			writer.flush(); //model
 			fos.close(); //controller
+
 		} catch (FileNotFoundException e) {
 				throw new RuntimeException(e); //view
 		} catch (IOException e) {
